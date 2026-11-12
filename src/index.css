@@ -4,6 +4,8 @@
 @import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
+/* The fixed 8 x 11 composition. Set by src/lib/fit.ts when the window can show it whole. */
+@custom-variant board (&:where([data-layout="board"] *));
 
 /* ── Tailwind theme: maps the tokens below onto utilities ── */
 @theme inline {
@@ -60,7 +62,6 @@
   --shadow-knob: 0 1px 3px rgb(20 20 10 / 0.2);
   --shadow-float: 0 1px 2px rgb(20 20 10 / 0.05), 0 10px 28px -10px rgb(20 20 10 / 0.22);
 
-  --breakpoint-board: 82.5rem;
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
 
   --animate-typing: typing 1.1s ease-in-out infinite;

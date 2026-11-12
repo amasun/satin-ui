@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode, type TouchEvent, type WheelEvent } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { BOARD, SIDE, STACK, useFit, type Fit } from "@/lib/fit";
 import { easeOut } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -11,10 +12,72 @@ const COOLDOWN_MS = 900;
 const WHEEL_THRESHOLD = 40;
 const SWIPE_THRESHOLD = 70;
 
-/** Same width and gutters as `Board`, so the titles line up with the tiles. */
-const frame = "mx-auto w-full max-w-[1434px] px-4 sm:px-6 board:px-9";
 /** Display type that reads as a tint of the page rather than as text. */
-const faint = "font-semibold text-foreground/[0.07] select-none dark:text-foreground/[0.09]";
+const faint = "font-semibold whitespace-nowrap text-foreground/[0.07] select-none dark:text-foreground/[0.09]";
+const note = "text-xs whitespace-nowrap text-muted-foreground/80 tabular-nums";
+const tagline = "A component kit on Tailwind CSS and shadcn/ui";
+
+/**
+ * A screen with its titles: the kit's name and the screen's theme, large and
+ * faint. Where they go depends on where the window has room (see lib/fit.ts).
+ */
+function Stage({ fit, label, page, children }: { fit: Fit; label: string; page: string; children: ReactNode }) {
+  /* Small windows: the grid reflows and scrolls, titles above and below it. */
+  if (fit.mode === "flow") {
+    return (
+      <div className="grid min-h-full content-center">
+        <header className="-mb-1 px-4 pt-7 sm:px-6">
+          <h1 className={cn(faint, "text-[clamp(3rem,13vw,6rem)] leading-[0.85] tracking-[-0.055em]")}>Satin UI</h1>
+        </header>
+        <main>{children}</main>
+        {/* Extra room at the foot clears the floating control bar. */}
+        <footer className="-mt-1 flex items-start justify-between gap-4 px-4 pb-24 sm:px-6">
+          <p className={cn(note, "pt-1")}>{page}</p>
+          <p className={cn(faint, "text-[clamp(1.75rem,7.5vw,3.5rem)] leading-[0.95] tracking-[-0.045em]")}>{label}</p>
+        </footer>
+      </div>
+    );
+  }
+
+  const side = fit.mode === "side";
+  return (
+    <div className="grid min-h-full place-items-center overflow-hidden">
+      {/* Everything inside is laid out at natural size and scaled as one piece. */}
+      <div
+        className={cn("grid shrink-0", side ? "grid-cols-[auto_auto_auto]" : "grid-rows-[auto_auto_auto]")}
+        style={{ zoom: fit.scale, width: BOARD.w + (side ? SIDE * 2 : 0), height: BOARD.h + (side ? 0 : STACK.top + STACK.bottom) }}
+      >
+        {side ? (
+          <>
+            {/* Wide window: the name climbs the left edge, the theme runs down the right. */}
+            <header className="flex flex-col items-end justify-between py-9" style={{ width: SIDE }}>
+              <p className={cn(note, "[writing-mode:vertical-rl]")}>{tagline}</p>
+              <h1 className={cn(faint, "-mr-5 rotate-180 text-[112px] leading-[0.8] tracking-[-0.055em] [writing-mode:vertical-rl]")}>Satin UI</h1>
+            </header>
+            <main style={{ width: BOARD.w }}>{children}</main>
+            <footer className="flex flex-col items-start justify-between py-9" style={{ width: SIDE }}>
+              <p className={cn(faint, "-ml-3 text-[76px] leading-[0.85] tracking-[-0.045em] [writing-mode:vertical-rl]")}>{label}</p>
+              <p className={cn(note, "[writing-mode:vertical-rl]")}>{page}</p>
+            </footer>
+          </>
+        ) : (
+          <>
+            {/* Tall window: the name sits above the board, the theme below it. */}
+            <header className="flex items-end justify-between px-9" style={{ height: STACK.top }}>
+              <h1 className={cn(faint, "-mb-7 text-[132px] leading-[0.8] tracking-[-0.055em]")}>Satin UI</h1>
+              <p className={cn(note, "-mb-4")}>{tagline}</p>
+            </header>
+            <main>{children}</main>
+            <footer className="flex items-start justify-between px-9" style={{ height: STACK.bottom }}>
+              <p className={cn(note, "-mt-4")}>{page}</p>
+              <p className={cn(faint, "-mt-6 text-[84px] leading-[0.85] tracking-[-0.045em]")}>{label}</p>
+            </footer>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const variants = {
   enter: (dir: number) => ({ opacity: 0, y: dir * 64, scale: 0.985, filter: "blur(10px)" }),
@@ -106,6 +169,7 @@ export function ScreenPager({ screens, rail }: { screens: Screen[]; rail?: React
   }, [step]);
 
   const screen = screens[state.index];
+  const fit = useFit();
 
   return (
     <div className="relative h-dvh overflow-hidden" onWheel={onWheel} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
@@ -122,27 +186,11 @@ export function ScreenPager({ screens, rail }: { screens: Screen[]; rail?: React
           animate="center"
           exit="exit"
           transition={{ duration: 0.55, ease: easeOut }}
-          className="absolute inset-0 overflow-x-hidden overflow-y-auto overscroll-contain"
+          className="absolute inset-0 overflow-x-hidden overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <div className="grid min-h-full content-center">
-            {/* The name of the kit, large and faint: a watermark above the board, not a banner. */}
-            <header className={cn(frame, "-mb-2 flex items-end justify-between gap-6 pt-8 board:-mb-5 board:pt-12")}>
-              <h1 className={cn(faint, "text-[clamp(3.5rem,11vw,9rem)] leading-[0.82] tracking-[-0.055em]")}>Satin UI</h1>
-              <p className="hidden pb-1.5 text-right text-xs leading-relaxed text-muted-foreground/80 sm:block">
-                A component kit
-                <br />
-                on Tailwind CSS and shadcn/ui
-              </p>
-            </header>
-            <main>{screen.content}</main>
-            {/* The theme of this screen, mirrored at the foot. Extra room on small screens clears the floating bar. */}
-            <footer className={cn(frame, "-mt-2 flex items-start justify-between gap-6 pb-24 board:-mt-5 board:pb-12")}>
-              <p className="pt-1.5 text-xs text-muted-foreground/80 tabular-nums">
-                {String(state.index + 1).padStart(2, "0")} / {String(screens.length).padStart(2, "0")}
-              </p>
-              <p className={cn(faint, "text-right text-[clamp(2rem,6.2vw,5rem)] leading-[0.9] tracking-[-0.045em]")}>{screen.label}</p>
-            </footer>
-          </div>
+          <Stage fit={fit} label={screen.label} page={`${String(state.index + 1).padStart(2, "0")} / ${String(screens.length).padStart(2, "0")}`}>
+            {screen.content}
+          </Stage>
         </motion.div>
       </AnimatePresence>
 

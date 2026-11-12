@@ -86,10 +86,20 @@ without touching the tiles. See `docs/screen-5-live-plan.md`.
 
 ## Layout
 
-A CSS grid with 78px row units. From 1320px (`board:` breakpoint) it is a fixed
-8 × 11 composition (`col` / `row` on each `Tile`); below that it reflows to 4
-and then 2 columns in source order. Tiles can be 1 to 4 columns wide and 1 to
-4 rows tall; each screen is one `Board`.
+The board is a CSS grid with 78px row units: a fixed 8 × 11 composition
+(`col` / `row` on each `Tile`), 1434 × 1070px at natural size. Tiles can be 1
+to 4 columns wide and 1 to 4 rows tall.
+
+`src/lib/fit.ts` picks one of three arrangements for the current window and
+mirrors it to `data-layout` on `<html>`, which the `board:` variant keys off:
+
+| Arrangement | When | What happens |
+| --- | --- | --- |
+| Side | Wide windows | The whole board is scaled to fit; "Satin UI" climbs the left edge and the screen's theme runs down the right |
+| Stack | Tall windows | Scaled to fit; the name sits above the board and the theme below |
+| Flow | Too small to scale (below 62%) | The grid reflows to 4, then 2 columns in source order and scrolls, with no visible scrollbar |
+
+In Side and Stack the page never scrolls. The scale is capped at 130%.
 
 ## Control bar
 
