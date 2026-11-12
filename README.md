@@ -3,8 +3,8 @@
 **Live preview:** https://amasun.github.io/satin-ui/
 
 A design kit built on **Tailwind CSS v4 + shadcn/ui (Radix)**, shown as an
-animated bento board of 55 working components across two screens (splitting
-a bill, and a team workspace). The board is the showcase; the
+animated bento board of 117 working components across five screens (splitting
+a bill, a team workspace, shop and checkout, an AI assistant, and a live event). The board is the showcase; the
 theme and the restyled shadcn components are the part meant to be reused.
 
 ```bash
@@ -69,7 +69,20 @@ the pause button next to the screen dots stops them all.
 swipe, PageUp / PageDown or the dots move between screens; the outgoing screen
 is unmounted. A screen taller than the viewport (tablet, phone) scrolls
 normally first and only hands over once you scroll past its end. Add a screen
-by adding an entry to `SCREENS` in `src/App.tsx`.
+by creating `src/screens/<name>.tsx` (a default-exported board) and listing it
+in `SOURCES` in `src/App.tsx`. Each screen is its own chunk, loaded on demand.
+
+| Screen | Tiles | Folder |
+| --- | --- | --- |
+| Splitting a bill | 31 | `src/tiles/` |
+| Team workspace | 24 | `src/tiles/workspace/` |
+| Shop and checkout | 22 | `src/tiles/shop/` |
+| AI assistant | 20 | `src/tiles/assistant/` |
+| Live event | 20 | `src/tiles/live/` |
+
+The live event screen reads its numbers (online count, reactions, peak) from
+`src/lib/live.ts`. Today that is a simulator; a real-time backend can replace it
+without touching the tiles. See `docs/screen-5-live-plan.md`.
 
 ## Layout
 

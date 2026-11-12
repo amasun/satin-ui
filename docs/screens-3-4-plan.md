@@ -1,6 +1,6 @@
 # 第三屏、第四屏与全局交互构思
 
-状态：第三、四屏仅构思，尚未实现；全局控件条已于 2026-11-12 实现（见 `src/components/controls.tsx`、`src/lib/settings.ts`）。
+状态：第三、四屏已于 2026-11-12 实现（`src/tiles/shop/`、`src/tiles/assistant/`），第四屏采用 AI 助手方案；全局控件条已于 2026-11-12 实现（见 `src/components/controls.tsx`、`src/lib/settings.ts`）。
 
 思路是让四屏各管一类场景，组件不重复，合起来接近一套完整规范。
 
