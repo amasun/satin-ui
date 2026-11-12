@@ -177,6 +177,17 @@
   --chart-5: #4a4a4a;
 }
 
+/* Violet is too dim on dark surfaces (about 2.3:1), so it brightens wherever
+   the dark tokens apply: the dark theme and dark-toned tiles. The label
+   turns to ink to stay readable on the lighter fill. The other accents
+   already clear 4.5:1 on dark surfaces and need no change. */
+[data-accent="violet"].dark,
+[data-accent="violet"] .dark {
+  --brand: #9a7bff;
+  --brand-to: #c79bff;
+  --brand-foreground: #140a2e;
+}
+
 /* ── Brand gradient ─────────────────────────────────────── */
 @utility bg-brand-gradient {
   /* The solid colour underneath keeps rounded edges free of fringing. */
