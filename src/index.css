@@ -1,0 +1,218 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Tailwind theme: maps the tokens below onto utilities ── */
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Additions to the shadcn palette */
+  --color-tile: var(--tile);
+  --color-well: var(--well);
+  --color-brand: var(--brand);
+  --color-brand-to: var(--brand-to);
+  --color-brand-foreground: var(--brand-foreground);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  /* Shape tokens: controls (buttons, inputs, chips) and board tiles. */
+  --radius-pill: var(--shape-pill);
+  --radius-tile: var(--shape-tile);
+
+  /*
+   * Elevation. Shadows are a layering signal, not decoration: surfaces that
+   * sit *in* the layout get none (tone and border separate them). Only two
+   * levels exist, for things that really sit above other content.
+   */
+  --shadow-knob: 0 1px 3px rgb(20 20 10 / 0.2);
+  --shadow-float: 0 1px 2px rgb(20 20 10 / 0.05), 0 10px 28px -10px rgb(20 20 10 / 0.22);
+
+  --breakpoint-board: 82.5rem;
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-typing: typing 1.1s ease-in-out infinite;
+  --animate-caret: caret 1s steps(1) infinite;
+
+  @keyframes typing {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.5;
+    }
+    30% {
+      transform: translateY(-3px);
+      opacity: 1;
+    }
+  }
+  @keyframes caret {
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+/* ── Tokens ─────────────────────────────────────────────── */
+:root {
+  --background: #f8f8f6;
+  --foreground: #151515;
+  --card: #ffffff;
+  --card-foreground: #151515;
+  --popover: #ffffff;
+  --popover-foreground: #151515;
+  --primary: #161616;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f2ef;
+  --secondary-foreground: #151515;
+  --muted: #f2f2ef;
+  --muted-foreground: #66665f;
+  --accent: #f2f2ef;
+  --accent-foreground: #151515;
+  --destructive: #e5393f;
+  --border: #e6e6e0;
+  --input: #dfdfd9;
+  --ring: #151515;
+
+  --tile: #efefeb;
+  --well: #e4e4df;
+  --brand: #2fd15f;
+  --brand-to: #b6f23c;
+  --brand-foreground: #151515;
+
+  --chart-1: #e23a9c;
+  --chart-2: #2fc95d;
+  --chart-3: #e5393f;
+  --chart-4: #f3a43b;
+  --chart-5: #151515;
+
+  --radius: 0.875rem;
+  --shape-pill: 999px;
+  --shape-tile: 2.25rem;
+}
+
+/*
+ * Corner style. `round` (default) uses pills and generous radii; `soft` is a
+ * tighter, squarer look. Set `data-shape="soft"` on <html>, or on any element
+ * to restyle just that subtree. Circles that carry meaning (avatars, radios,
+ * status dots, slider thumbs) stay round in both.
+ */
+/* Accent: swaps the brand gradient. Each pair keeps its label colour readable. */
+[data-accent="blue"] {
+  --brand: #3b9eff;
+  --brand-to: #5fe0ff;
+  --brand-foreground: #0b1220;
+}
+[data-accent="orange"] {
+  --brand: #ff8a1f;
+  --brand-to: #ffd23c;
+  --brand-foreground: #1a1206;
+}
+[data-accent="violet"] {
+  --brand: #6d3df5;
+  --brand-to: #a24bf0;
+  --brand-foreground: #ffffff;
+}
+
+[data-shape="soft"] {
+  --radius: 0.5rem;
+  --shape-pill: 0.5rem;
+  --shape-tile: 1rem;
+}
+
+.dark {
+  --background: #0e0e0e;
+  --foreground: #f4f4f1;
+  --card: #262626;
+  --card-foreground: #f4f4f1;
+  --popover: #262626;
+  --popover-foreground: #f4f4f1;
+  --primary: #f4f4f1;
+  --primary-foreground: #151515;
+  --secondary: #2c2c2c;
+  --secondary-foreground: #f4f4f1;
+  --muted: #2c2c2c;
+  --muted-foreground: #a3a39d;
+  --accent: #2c2c2c;
+  --accent-foreground: #f4f4f1;
+  --destructive: #ff5a5f;
+  --border: rgb(255 255 255 / 0.1);
+  --input: rgb(255 255 255 / 0.18);
+  --ring: #f4f4f1;
+
+  --tile: #1a1a1a;
+  --well: #303030;
+  --chart-5: #4a4a4a;
+}
+
+/* ── Brand gradient ─────────────────────────────────────── */
+@utility bg-brand-gradient {
+  /* The solid colour underneath keeps rounded edges free of fringing. */
+  background-color: var(--brand);
+  background-image: linear-gradient(100deg, var(--brand), var(--brand-to));
+}
+@utility bg-brand-gradient-v {
+  background-color: var(--brand);
+  background-image: linear-gradient(180deg, var(--brand-to), var(--brand));
+}
+@utility bg-brand-soft {
+  background-image: linear-gradient(
+    100deg,
+    color-mix(in oklab, var(--brand) 20%, var(--card)),
+    color-mix(in oklab, var(--brand-to) 24%, var(--card))
+  );
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-[13px] font-medium text-foreground antialiased transition-colors duration-500;
+    font-feature-settings: "tnum" 1;
+    letter-spacing: -0.005em;
+  }
+  button {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  button:disabled {
+    cursor: default;
+  }
+}
