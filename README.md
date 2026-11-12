@@ -91,12 +91,11 @@ A CSS grid with 78px row units. From 1320px (`board:` breakpoint) it is a fixed
 reflows to 4 and then 2 columns in source order. Tiles can be 1 to 4 columns
 wide and 1 to 4 rows tall. The board is never scaled.
 
-Each screen carries two faint titles: the kit's name and the screen's theme.
-`src/lib/fit.ts` decides where they go. On a window wide enough to leave a
-margin beside the board (about 1640px and up) they run vertically in those
-margins and add no height, so a 1080px-tall window shows the whole screen
-without scrolling. On narrower windows they sit above and below the board.
-When a screen is taller than the window it scrolls, with the scrollbar hidden.
+Each screen carries two quiet labels, set horizontally: the kit's name above
+the board and the screen's theme below (`Stage` in `src/components/pager.tsx`).
+They sit inside the board's own padding, so they add no height on desktop: a
+1080px-tall window shows a whole screen without scrolling. When a screen is
+taller than the window it scrolls, with the scrollbar hidden.
 
 ## Control bar
 

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode, type TouchEvent, type WheelEvent } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { BOARD_WIDTH, useTitleGutter } from "@/lib/fit";
 import { easeOut } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -12,59 +11,32 @@ const COOLDOWN_MS = 900;
 const WHEEL_THRESHOLD = 40;
 const SWIPE_THRESHOLD = 70;
 
-/** Display type that reads as a tint of the page rather than as text. */
-const faint = "font-semibold whitespace-nowrap text-foreground/[0.07] select-none dark:text-foreground/[0.09]";
+/** Quiet labels: readable, but a step behind the components they frame. */
+const mark = "text-[13px] font-semibold tracking-[-0.01em] whitespace-nowrap text-foreground/60 board:text-[15px]";
 const note = "text-xs whitespace-nowrap text-muted-foreground/80 tabular-nums";
-const tagline = "A component kit on Tailwind CSS and shadcn/ui";
-
-/** Same width and gutters as `Board`, so the titles line up with the tiles. */
-const frame = "mx-auto w-full max-w-[1434px] px-4 sm:px-6 board:px-9";
+/** A strip exactly as tall as the board's own padding, so the labels sit in space that is already there. */
+const band = "absolute inset-x-0 flex h-7 items-center justify-between gap-4 px-4 sm:h-8 sm:px-6 board:h-9 board:px-9";
 
 /**
- * A screen with its titles: the kit's name and the screen's theme, large and
- * faint. The board is left exactly as it is; only the text moves.
+ * A screen with its labels: the kit's name above the board and the screen's
+ * theme below. They are placed inside the board's existing padding, so the
+ * board keeps its size and position and the page gains no height on desktop.
+ * Small screens get a few extra pixels of padding, plus room for the floating bar.
  */
-function Stage({ gutter, label, page, children }: { gutter: number; label: string; page: string; children: ReactNode }) {
-  /* Wide window: the titles run vertically in the margins beside the board and add no height. */
-  if (gutter > 0) {
-    return (
-      <div className="grid min-h-full grid-cols-[auto_auto_auto] content-center justify-center">
-        <header className="flex flex-col items-end justify-between py-9" style={{ width: gutter }}>
-          <p className={cn(note, "[writing-mode:vertical-rl]")}>{tagline}</p>
-          <h1
-            className={cn(faint, "rotate-180 leading-[0.8] tracking-[-0.055em] [writing-mode:vertical-rl]")}
-            style={{ fontSize: gutter * 1.08, marginRight: gutter * -0.2 }}
-          >
-            Satin UI
-          </h1>
-        </header>
-        <main style={{ width: BOARD_WIDTH }}>{children}</main>
-        <footer className="flex flex-col items-start justify-between py-9" style={{ width: gutter }}>
-          <p
-            className={cn(faint, "leading-[0.85] tracking-[-0.045em] [writing-mode:vertical-rl]")}
-            style={{ fontSize: gutter * 0.73, marginLeft: gutter * -0.12 }}
-          >
-            {label}
-          </p>
-          <p className={cn(note, "[writing-mode:vertical-rl]")}>{page}</p>
-        </footer>
-      </div>
-    );
-  }
-
-  /* Otherwise the name sits above the board and the theme below, aligned to its edges. */
+function Stage({ label, page, children }: { label: string; page: string; children: ReactNode }) {
   return (
     <div className="grid min-h-full content-center">
-      <header className={cn(frame, "-mb-1 flex items-end justify-between gap-6 pt-7 board:-mb-5 board:pt-9")}>
-        <h1 className={cn(faint, "text-[clamp(3rem,10vw,7.5rem)] leading-[0.82] tracking-[-0.055em]")}>Satin UI</h1>
-        <p className={cn(note, "hidden pb-1 sm:block")}>{tagline}</p>
-      </header>
-      <main>{children}</main>
-      {/* Extra room at the foot on small screens clears the floating control bar. */}
-      <footer className={cn(frame, "-mt-1 flex items-start justify-between gap-6 pb-24 board:-mt-5 board:pb-9")}>
-        <p className={cn(note, "pt-1")}>{page}</p>
-        <p className={cn(faint, "text-right text-[clamp(1.75rem,5.6vw,4.25rem)] leading-[0.9] tracking-[-0.045em]")}>{label}</p>
-      </footer>
+      <div className="relative mx-auto w-full max-w-[1434px] pt-3 pb-[76px] sm:pt-2 sm:pb-[72px] board:py-0">
+        <header className={cn(band, "top-0")}>
+          <h1 className={mark}>Satin UI</h1>
+          <p className={cn(note, "hidden sm:block")}>A component kit on Tailwind CSS and shadcn/ui</p>
+        </header>
+        <main>{children}</main>
+        <footer className={cn(band, "bottom-16 board:bottom-0")}>
+          <p className={mark}>{label}</p>
+          <p className={note}>{page}</p>
+        </footer>
+      </div>
     </div>
   );
 }
@@ -159,7 +131,6 @@ export function ScreenPager({ screens, rail }: { screens: Screen[]; rail?: React
   }, [step]);
 
   const screen = screens[state.index];
-  const gutter = useTitleGutter();
 
   return (
     <div className="relative h-dvh overflow-hidden" onWheel={onWheel} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
@@ -178,7 +149,7 @@ export function ScreenPager({ screens, rail }: { screens: Screen[]; rail?: React
           transition={{ duration: 0.55, ease: easeOut }}
           className="absolute inset-0 overflow-x-hidden overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <Stage gutter={gutter} label={screen.label} page={`${String(state.index + 1).padStart(2, "0")} / ${String(screens.length).padStart(2, "0")}`}>
+          <Stage label={screen.label} page={`${String(state.index + 1).padStart(2, "0")} / ${String(screens.length).padStart(2, "0")}`}>
             {screen.content}
           </Stage>
         </motion.div>
