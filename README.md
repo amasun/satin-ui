@@ -6,9 +6,9 @@ a bill, and a team workspace). The board is the showcase; the
 theme and the restyled shadcn components are the part meant to be reused.
 
 ```bash
-npm install
-npm run dev      # http://localhost:5183
-npm run build    # type-check + production build
+pnpm install
+pnpm dev          # http://localhost:5183
+pnpm build        # type-check + production build
 ```
 
 ## What to take into another project

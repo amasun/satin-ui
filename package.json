@@ -1,6 +1,7 @@
 {
   "name": "satin-ui",
   "private": true,
+  "packageManager": "pnpm@11.20.0",
   "license": "MIT",
   "repository": "github:amasun/satin-ui",
   "version": "1.0.0",
