@@ -4,11 +4,10 @@
 @import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
-/* The fixed 8 x 11 composition. Set by src/lib/fit.ts when the window can show it whole. */
-@custom-variant board (&:where([data-layout="board"] *));
 
 /* ── Tailwind theme: maps the tokens below onto utilities ── */
 @theme inline {
+  --breakpoint-board: 82.5rem;
   --font-heading: var(--font-sans);
   --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
 
