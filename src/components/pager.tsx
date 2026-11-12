@@ -11,6 +11,11 @@ const COOLDOWN_MS = 900;
 const WHEEL_THRESHOLD = 40;
 const SWIPE_THRESHOLD = 70;
 
+/** Same width and gutters as `Board`, so the titles line up with the tiles. */
+const frame = "mx-auto w-full max-w-[1434px] px-4 sm:px-6 board:px-9";
+/** Display type that reads as a tint of the page rather than as text. */
+const faint = "font-semibold text-foreground/[0.07] select-none dark:text-foreground/[0.09]";
+
 const variants = {
   enter: (dir: number) => ({ opacity: 0, y: dir * 64, scale: 0.985, filter: "blur(10px)" }),
   center: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
@@ -119,7 +124,25 @@ export function ScreenPager({ screens, rail }: { screens: Screen[]; rail?: React
           transition={{ duration: 0.55, ease: easeOut }}
           className="absolute inset-0 overflow-x-hidden overflow-y-auto overscroll-contain"
         >
-          <main className="grid min-h-full content-center pb-16 board:pb-0">{screen.content}</main>
+          <div className="grid min-h-full content-center">
+            {/* The name of the kit, large and faint: a watermark above the board, not a banner. */}
+            <header className={cn(frame, "-mb-2 flex items-end justify-between gap-6 pt-8 board:-mb-5 board:pt-12")}>
+              <h1 className={cn(faint, "text-[clamp(3.5rem,11vw,9rem)] leading-[0.82] tracking-[-0.055em]")}>Satin UI</h1>
+              <p className="hidden pb-1.5 text-right text-xs leading-relaxed text-muted-foreground/80 sm:block">
+                A component kit
+                <br />
+                on Tailwind CSS and shadcn/ui
+              </p>
+            </header>
+            <main>{screen.content}</main>
+            {/* The theme of this screen, mirrored at the foot. Extra room on small screens clears the floating bar. */}
+            <footer className={cn(frame, "-mt-2 flex items-start justify-between gap-6 pb-24 board:-mt-5 board:pb-12")}>
+              <p className="pt-1.5 text-xs text-muted-foreground/80 tabular-nums">
+                {String(state.index + 1).padStart(2, "0")} / {String(screens.length).padStart(2, "0")}
+              </p>
+              <p className={cn(faint, "text-right text-[clamp(2rem,6.2vw,5rem)] leading-[0.9] tracking-[-0.045em]")}>{screen.label}</p>
+            </footer>
+          </div>
         </motion.div>
       </AnimatePresence>
 
