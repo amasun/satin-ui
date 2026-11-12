@@ -22,8 +22,10 @@ const band = "absolute inset-x-0 flex h-7 items-center justify-between gap-4 px-
  * theme below. They are placed inside the board's existing padding, so the
  * board keeps its size and position and the page gains no height on desktop.
  * Small screens get a few extra pixels of padding, plus room for the floating bar.
+ * The name and tagline are identical on every screen, so they stay put through a
+ * change; the theme and page number cross-fade without moving.
  */
-function Stage({ label, page, children }: { label: string; page: string; children: ReactNode }) {
+function Stage({ dir, label, page, children }: { dir: number; label: string; page: string; children: ReactNode }) {
   return (
     <div className="grid min-h-full content-center">
       <div className="relative mx-auto w-full max-w-[1434px] pt-3 pb-[76px] sm:pt-2 sm:pb-[72px] board:py-0">
@@ -31,21 +33,38 @@ function Stage({ label, page, children }: { label: string; page: string; childre
           <h1 className={mark}>Satin UI</h1>
           <p className={cn(note, "hidden sm:block")}>A component kit on Tailwind CSS and shadcn/ui</p>
         </header>
-        <main>{children}</main>
+        {/* The reserved height keeps the labels in place while a board is still loading. */}
+        <motion.main className="board:min-h-[1070px]" variants={boardVariants} custom={dir} transition={boardTransition}>
+          {children}
+        </motion.main>
         <footer className={cn(band, "bottom-16 board:bottom-0")}>
-          <p className={mark}>{label}</p>
-          <p className={note}>{page}</p>
+          <motion.p className={mark} variants={labelVariants} transition={labelTransition}>
+            {label}
+          </motion.p>
+          <motion.p className={note} variants={labelVariants} transition={labelTransition}>
+            {page}
+          </motion.p>
         </footer>
       </div>
     </div>
   );
 }
 
-const variants = {
+/**
+ * A screen change is carried by the board alone: it slides and blurs in the
+ * direction of travel. The screen wrapper only names the states so its
+ * children can follow them; the labels around the board never move.
+ */
+const screenVariants = { enter: {}, center: {}, exit: {} };
+const boardVariants = {
   enter: (dir: number) => ({ opacity: 0, y: dir * 64, scale: 0.985, filter: "blur(10px)" }),
   center: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
   exit: (dir: number) => ({ opacity: 0, y: dir * -64, scale: 0.985, filter: "blur(10px)" }),
 };
+/** Labels that change with the screen cross-fade in place. */
+const labelVariants = { enter: { opacity: 0 }, center: { opacity: 1 }, exit: { opacity: 0 } };
+const boardTransition = { duration: 0.55, ease: easeOut };
+const labelTransition = { duration: 0.3, ease: easeOut };
 
 /** True if something between `target` and `root` can still scroll in the wheel's direction. */
 function innerCanScroll(target: Element, root: Element, dir: number) {
@@ -142,14 +161,13 @@ export function ScreenPager({ screens, rail }: { screens: Screen[]; rail?: React
             if (el) scroller.current = el;
           }}
           custom={state.dir}
-          variants={variants}
+          variants={screenVariants}
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.55, ease: easeOut }}
           className="absolute inset-0 overflow-x-hidden overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <Stage label={screen.label} page={`${String(state.index + 1).padStart(2, "0")} / ${String(screens.length).padStart(2, "0")}`}>
+          <Stage dir={state.dir} label={screen.label} page={`${String(state.index + 1).padStart(2, "0")} / ${String(screens.length).padStart(2, "0")}`}>
             {screen.content}
           </Stage>
         </motion.div>

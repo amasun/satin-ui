@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { MotionConfig } from "motion/react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ControlBar, Replayable } from "@/components/controls";
@@ -17,25 +17,37 @@ const SOURCES = [
   { id: "live", label: "Live event", load: () => import("@/screens/live") },
 ] satisfies Array<{ id: string; label: string; load: () => Promise<{ default: ComponentType }> }>;
 
-const SCREENS = SOURCES.map(({ id, label, load }) => {
-  const Board = lazy(load);
-  return {
-    id,
-    label,
-    content: (
-      <Replayable>
-        <Suspense fallback={null}>
-          <Board />
-        </Suspense>
-      </Replayable>
-    ),
-  };
-});
+/** Boards that have finished loading, so a screen already fetched renders at once instead of suspending. */
+const ready = new Map<string, ComponentType>();
+const fetchBoard = ({ id, load }: (typeof SOURCES)[number]) => load().then((m) => (ready.set(id, m.default), m.default));
+
+function LazyBoard({ source }: { source: (typeof SOURCES)[number] }) {
+  const [Board, setBoard] = useState<ComponentType | null>(() => ready.get(source.id) ?? null);
+  useEffect(() => {
+    if (Board) return;
+    let live = true;
+    void fetchBoard(source).then((C) => live && setBoard(() => C));
+    return () => {
+      live = false;
+    };
+  }, [Board, source]);
+  return Board ? <Board /> : null;
+}
+
+const SCREENS = SOURCES.map((source) => ({
+  id: source.id,
+  label: source.label,
+  content: (
+    <Replayable>
+      <LazyBoard source={source} />
+    </Replayable>
+  ),
+}));
 
 export function App() {
   /* Fetch the other screens once the first has settled, so switching never waits. */
   useEffect(() => {
-    const timer = window.setTimeout(() => SOURCES.forEach((s) => void s.load()), 1500);
+    const timer = window.setTimeout(() => SOURCES.forEach((s) => void fetchBoard(s)), 1500);
     return () => window.clearTimeout(timer);
   }, []);
 
