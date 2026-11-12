@@ -1,5 +1,7 @@
 # Satin UI
 
+**Live preview:** https://amasun.github.io/satin-ui/
+
 A design kit built on **Tailwind CSS v4 + shadcn/ui (Radix)**, shown as an
 animated bento board of 55 working components across two screens (splitting
 a bill, and a team workspace). The board is the showcase; the
