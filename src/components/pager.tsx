@@ -23,25 +23,29 @@ const band = "absolute inset-x-0 flex h-7 items-center justify-between gap-4 px-
  * board keeps its size and position and the page gains no height on desktop.
  * Small screens get a few extra pixels of padding, plus room for the floating bar.
  * The name and tagline are identical on every screen, so they stay put through a
- * change; the theme and page number cross-fade without moving.
+ * change; the theme and page number blur out and back in without moving.
  */
 function Stage({ dir, label, page, children }: { dir: number; label: string; page: string; children: ReactNode }) {
   return (
     <div className="grid min-h-full content-center">
       <div className="relative mx-auto w-full max-w-[1434px] pt-3 pb-[76px] sm:pt-2 sm:pb-[72px] board:py-0">
         <header className={cn(band, "top-0")}>
-          <h1 className={mark}>Satin UI</h1>
-          <p className={cn(note, "hidden sm:block")}>A component kit on Tailwind CSS and shadcn/ui</p>
+          <motion.h1 className={mark} variants={fixedVariants}>
+            Satin UI
+          </motion.h1>
+          <motion.p className={cn(note, "hidden sm:block")} variants={fixedVariants}>
+            A component kit on Tailwind CSS and shadcn/ui
+          </motion.p>
         </header>
         {/* The reserved height keeps the labels in place while a board is still loading. */}
         <motion.main className="board:min-h-[1070px]" variants={boardVariants} custom={dir} transition={boardTransition}>
           {children}
         </motion.main>
         <footer className={cn(band, "bottom-16 board:bottom-0")}>
-          <motion.p className={mark} variants={labelVariants} transition={labelTransition}>
+          <motion.p className={mark} variants={labelVariants}>
             {label}
           </motion.p>
-          <motion.p className={note} variants={labelVariants} transition={labelTransition}>
+          <motion.p className={note} variants={labelVariants}>
             {page}
           </motion.p>
         </footer>
@@ -61,10 +65,22 @@ const boardVariants = {
   center: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
   exit: (dir: number) => ({ opacity: 0, y: dir * -64, scale: 0.985, filter: "blur(10px)" }),
 };
-/** Labels that change with the screen cross-fade in place. */
-const labelVariants = { enter: { opacity: 0 }, center: { opacity: 1 }, exit: { opacity: 0 } };
+/**
+ * Labels that change with the screen dissolve in place: the old one blurs out
+ * first, then the new one resolves, so the two never read on top of each other.
+ */
+const labelVariants = {
+  enter: { opacity: 0, filter: "blur(6px)" },
+  center: { opacity: 1, filter: "blur(0px)", transition: { duration: 0.4, delay: 0.18, ease: easeOut } },
+  exit: { opacity: 0, filter: "blur(6px)", transition: { duration: 0.2, ease: easeOut } },
+};
+/**
+ * Labels that are the same on every screen. Two screens overlap during a
+ * change, and two copies of translucent text would read darker than one, so
+ * the outgoing copy is dropped at once and the incoming one is already there.
+ */
+const fixedVariants = { enter: { opacity: 1 }, center: { opacity: 1 }, exit: { opacity: 0, transition: { duration: 0 } } };
 const boardTransition = { duration: 0.55, ease: easeOut };
-const labelTransition = { duration: 0.3, ease: easeOut };
 
 /** True if something between `target` and `root` can still scroll in the wheel's direction. */
 function innerCanScroll(target: Element, root: Element, dir: number) {
